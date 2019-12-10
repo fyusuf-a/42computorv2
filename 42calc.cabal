@@ -87,6 +87,7 @@ executable 42calc
   -- Other library packages from which modules are imported.
   build-depends:       base, 42calc
                      , Cabal
+                     , containers
 
   -- Directories containing source files.
   -- hs-source-dirs:

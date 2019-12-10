@@ -20,46 +20,34 @@ module Tokens where
 
 %%
 
-Exp : var '=' Exp1           { Let $1 $3 }
-    | Exp1                   { Exp1 $1 }
+Exp : var '=' Exp           { Let $1 $3 }
+    | Exp                   { Exp $1 }
 
-Exp1 : Exp1 '+' Term         { Plus $1 $3 }
-     | Exp1 '-' Term         { Minus $1 $3 }
-     | Term                  { Term $1 }
+Exp : Exp '+' Term         { Plus $1 $3 }
+     | Exp '-' Term         { Minus $1 $3 }
+     | Term                  { Exp $1 }
 
 Term : Term '*' Factor       { Times $1 $3 }
      | Term '/' Factor       { Div $1 $3 }
-     | Factor                { Factor $1 }
+     | Factor                { Exp $1 }
 
 Factor : var                   { Var $1 }
        | int                   { Int $1 }
-       | '(' Exp1 ')'          { Brack $2 }
+       | '(' Exp ')'          { Exp $2 }
 
 {
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
 data Exp
-  = Let String Exp1
-  | Exp1 Exp1
-  deriving Show
-
-data Exp1
-  = Plus Exp1 Term
-  | Minus Exp1 Term
-  | Term Term
-  deriving Show
-
-data Term
-  = Times Term Factor
-  | Div Term Factor
-  | Factor Factor
-  deriving Show
-
-data Factor
-  = Int Int
+  = Let String Exp
+  | Plus Exp Exp
+  | Minus Exp Exp
+  | Times Exp Exp
+  | Div Exp Exp
+  | Int Int
+  | Exp Exp
   | Var String
-  | Brack Exp1
   deriving Show
 
 data Token
