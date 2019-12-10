@@ -62,7 +62,7 @@ library
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base ^>=4.13.0.0
+  build-depends:       base
                      , array
                      , Useful
                      , containers
@@ -85,7 +85,7 @@ executable 42calc
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base ^>=4.13.0.0, 42calc
+  build-depends:       base, 42calc
                      , Cabal
 
   -- Directories containing source files.
