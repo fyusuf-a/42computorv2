@@ -90,6 +90,8 @@ executable 42calc
                      , containers
                      , Useful
 
+  build-tool-depends:  happy:happy
+
   -- Directories containing source files.
   -- hs-source-dirs:
 

@@ -1,4 +1,4 @@
 *.swo
 *.swp
-./dist-newstyle
-./src/Tokens.hs
+dist-newstyle
+.cabal-lint
