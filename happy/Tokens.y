@@ -2,7 +2,6 @@
 module Tokens where
 }
 
-
 %name calc
 %tokentype { Token }
 %error { parseError }
@@ -20,11 +19,11 @@ module Tokens where
 
 %%
 
-Exp : var '=' Exp           { Let $1 $3 }
-    | Exp                   { Exp $1 }
+Exp : var '=' Exp1           { Let $1 $3 }
+    | Exp1                   { Exp $1 }
 
-Exp : Exp '+' Term         { Plus $1 $3 }
-     | Exp '-' Term         { Minus $1 $3 }
+Exp1 : Exp1 '+' Term         { Plus $1 $3 }
+     | Exp1 '-' Term         { Minus $1 $3 }
      | Term                  { Exp $1 }
 
 Term : Term '*' Factor       { Times $1 $3 }
