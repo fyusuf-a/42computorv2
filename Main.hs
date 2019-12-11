@@ -5,15 +5,24 @@ import Data.Map(empty)
 import Lexer
 import Eval
 import Control.Monad
-main :: IO ()
-main = do
+import Useful.Dictionary
+import Debug.Trace
+
+mainLoop:: VarList -> IO ()
+mainLoop list = do
   line <- getLine 
-  case calc . lexer $ line of
-    Let _ _ -> error "To be implemented"
-    x -> print $ eval x empty
-  main
+  let exp = calc . lexer $ line
+  case exp of
+    Let var exp -> do
+      let list' = list #+ (var, exp)
+      print ("Variable " ++ var ++ " = " ++ (show (eval exp list')))
+      mainLoop list'
+    _ -> do
+      print $ eval exp list
+      mainLoop list
 
-
+main :: IO ()
+main = mainLoop empty
 
 {-getLine :: IO String
 class Monad m where
