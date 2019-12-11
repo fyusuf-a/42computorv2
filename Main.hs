@@ -15,7 +15,7 @@ mainLoop list = do
   case exp of
     Let var exp -> do
       let list' = list #+ (var, exp)
-      print ("Variable " ++ var ++ " = " ++ (show (eval exp list')))
+      print $ eval exp list'
       mainLoop list'
     _ -> do
       print $ eval exp list
