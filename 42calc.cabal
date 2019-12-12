@@ -33,11 +33,13 @@ license:             BSD-3-Clause
 license-file:        LICENSE
 
 -- The package author(s).
-author:              fyusuf-a
+author:              fyusuf-a,
+                     Lazare-42
 
 -- An email address to which users can send suggestions, bug reports, and
 -- patches.
-maintainer:          fyusuf-a@student.42.fr
+maintainer:          fyusuf-a@student.42.fr,
+                     lazrossi@student.42.fr
 
 -- A copyright notice.
 -- copyright:
