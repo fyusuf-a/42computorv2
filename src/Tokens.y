@@ -1,5 +1,7 @@
 {
 module Tokens where
+
+import Complex
 }
 
 %name calc
@@ -7,7 +9,8 @@ module Tokens where
 %error { parseError }
 
 %token
-  int   { TokenInt $$ }
+  'i'   { TokenI }
+  num   { TokenRatio $$ }
   var   { TokenVar $$ }
   '='   { TokenEq }
   '+'   { TokenPlus }
@@ -30,9 +33,10 @@ Term : Term '*' Factor       { Times $1 $3 }
      | Term '/' Factor       { Div $1 $3 }
      | Factor                { Exp $1 }
 
-Factor : var                   { Var $1 }
-       | int                   { Int $1 }
-       | '(' Exp ')'          { Exp $2 }
+Factor : 'i'                 { I }
+       | var                 { Var $1 }
+       | num                 { Number $1 }
+       | '(' Exp ')'         { Exp $2 }
 
 {
 parseError :: [Token] -> a
@@ -44,14 +48,16 @@ data Exp
   | Minus Exp Exp
   | Times Exp Exp
   | Div Exp Exp
-  | Int Int
+  | Number Rational
   | Exp Exp
   | Var String
+  | I
   deriving Show
 
 data Token
   = TokenVar String
-  | TokenInt Int
+  | TokenI
+  | TokenRatio Rational
   | TokenEq
   | TokenPlus
   | TokenMinus
