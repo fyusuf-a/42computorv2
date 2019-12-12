@@ -7,6 +7,7 @@ import Eval
 import Control.Monad
 import Useful.Dictionary
 import Debug.Trace
+import Complex
 
 mainLoop:: VarList -> IO ()
 mainLoop list = do
@@ -15,17 +16,11 @@ mainLoop list = do
   case exp of
     Let var exp -> do
       let list' = list #+ (var, exp)
-      print $ eval exp list'
+      putStrLn . pretty $ eval exp list'
       mainLoop list'
     _ -> do
-      print $ eval exp list
+      putStrLn . pretty $ eval exp list
       mainLoop list
 
 main :: IO ()
 main = mainLoop empty
-
-{-getLine :: IO String
-class Monad m where
-    (>>=) :: m a -> (a -> m b) -> m b
-    return :: a -> m a
-error :: String -> a-}
