@@ -7,10 +7,6 @@ data Complex = Complex
                   , imaginary :: Rational
                   }
 
---instance Show Complex where
-  --show (Complex x y) = sx ++ " + i" ++ (show y)
-    --where sx = if denominator x == 1 then show $ numerator x else show $ x
-          --sy = if denominator x == 1 then show $ numerator x else show $ x
 class PrettyShow a where
   pretty :: a -> String
 
