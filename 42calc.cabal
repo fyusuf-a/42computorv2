@@ -69,6 +69,7 @@ library
                      , array
                      , Useful
                      , containers
+                     , ncurses
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -92,6 +93,7 @@ executable 42calc
                      , Cabal
                      , containers
                      , Useful
+                     , ncurses
 
   build-tool-depends:  happy:happy
 
