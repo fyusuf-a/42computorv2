@@ -6,6 +6,7 @@ import Useful.Dictionary
 import Complex
 
 type VarList = Map String Exp
+type CurrentState = ([String], VarList)
 
 eval :: Exp -> VarList -> Complex
 eval (t1 `Plus` t2) l = eval t1 l + eval t2 l
