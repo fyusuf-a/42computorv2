@@ -55,7 +55,6 @@ library
   -- Modules exported by the library.
   exposed-modules:     Lexer
                      , Tokens
-                     , Eval
                      , Complex
 
   -- Modules included in this library but not exported.
@@ -69,6 +68,8 @@ library
                      , array
                      , Useful
                      , containers
+                     , mtl
+                     , haskeline
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -93,6 +94,7 @@ executable 42calc
                      , containers
                      , Useful
                      , haskeline
+                     , mtl
 
   build-tool-depends:  happy:happy
 
