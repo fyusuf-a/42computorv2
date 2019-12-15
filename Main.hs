@@ -16,9 +16,11 @@ mainLoop list = do
   case exp of
     Let var exp -> do
       let list' = list #+ (var, exp)
+      {-putStrLn . show $ exp-}
       putStrLn . pretty $ eval exp list'
       mainLoop list'
     _ -> do
+      {-putStrLn . show $ exp-}
       putStrLn . pretty $ eval exp list
       mainLoop list
 

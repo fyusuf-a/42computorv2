@@ -13,15 +13,12 @@ lexer ('*':cs) = TokenTimes : lexer cs
 lexer ('/':cs) = TokenDiv : lexer cs
 lexer ('(':cs) = TokenOB : lexer cs
 lexer (')':cs) = TokenCB : lexer cs
-lexer ('^':cs) = TokenPower : lexInt cs
+lexer ('^':cs) = TokenPower : lexer cs
 lexer (c:cs)
   | isSpace c = lexer cs
   | isAlpha c = lexVar (c:cs)
   | isDigit c = lexNum (c:cs)
   | otherwise = error $ "Unexpected character " ++ show c
-
-lexInt cs = TokenInt (read num) : lexer rest
-  where (num, rest) = span isDigit cs
 
 lexNum cs = TokenRatio (read $ num ++ " % 1") : lexer rest
   where (num, rest) = span isDigit cs

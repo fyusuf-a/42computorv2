@@ -1,17 +1,13 @@
 module Complex where
 
 import Data.Ratio 
+import Data.Maybe (isJust, fromJust) 
 
 data Complex = Complex
                   { real :: Rational
                   , imaginary :: Rational
                   }
-             | Int Integer
 
---instance Show Complex where
-  --show (Complex x y) = sx ++ " + i" ++ (show y)
-    --where sx = if denominator x == 1 then show $ numerator x else show $ x
-          --sy = if denominator x == 1 then show $ numerator x else show $ x
 class PrettyShow a where
   pretty :: a -> String
 
@@ -31,19 +27,10 @@ instance PrettyShow Complex where
   pretty (Complex 0 1) = "i"
   pretty (Complex 0 y) = pretty y ++ "i"
   pretty (Complex x y) = pretty x ++ " + " ++ pretty y ++ "i"
-  pretty (Int n) = pretty n
 
 instance Num Complex where
   (Complex x y) + (Complex x' y') = Complex (x + x') (y + y') 
-  (Int n) + (Complex x' y')       = Complex (n + x') y' 
-  (Complex x y) + (Int n)         = Complex (x + n) y 
-  (Int n) + (Int n')              = Int (n + n') 
-
   (Complex x y) - (Complex x' y') = Complex (x - x') (y - y') 
-  (Int n) - (Complex x' y')       = Complex (n - x') y' 
-  (Complex x y) - (Int n)         = Complex (x - n) y 
-  (Int n) - (Int n')              = Int (n - n') 
-
   (Complex x y) * (Complex x' y') = Complex (x * x' - y * y') (x * y' + x' * y) 
   negate (Complex x y) = Complex (-x) (-y)
   -- Modulus
@@ -55,6 +42,15 @@ instance Num Complex where
 
 conjugate :: Complex -> Complex
 conjugate (Complex x y) = Complex x (-y)
+
+(^^^) :: Complex -> Complex -> Complex
+a ^^^ b
+  | isJust maybeN =  a ^^ (fromJust maybeN)
+  | otherwise = error $ "Power " ++ pretty b ++ " is not a natural"
+  where toNatural (Complex x y)
+          | denominator x == 1 && y == 0 = Just $ numerator x
+          | otherwise = Nothing
+        maybeN = toNatural b
 
 instance Fractional Complex where
   (Complex _ _) / (Complex 0 0) = error "Division by zero is impossible"
