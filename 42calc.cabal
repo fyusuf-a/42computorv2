@@ -92,6 +92,7 @@ executable 42calc
                      , Cabal
                      , containers
                      , Useful
+                     , haskeline
 
   build-tool-depends:  happy:happy
 
