@@ -1,9 +1,9 @@
 module Eval where
 
 import Tokens
-import Data.Map
 import Useful.Dictionary
 import Complex
+import Data.Map
 
 type VarList = Map String Exp
 
@@ -14,7 +14,6 @@ eval (t1 `Times` t2) l = eval t1 l * eval t2 l
 eval (t1 `Div` t2) l = eval t1 l / eval t2 l
 eval (Number r) _ = Complex r 0
 eval I _ = Complex 0 1
-eval (Exp e) l = eval e l
 eval (Var v) list =
   case v #! list of
     Nothing -> error $ "Could not find value " ++ v ++ " in memory."

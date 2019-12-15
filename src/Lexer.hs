@@ -17,6 +17,7 @@ lexer (c:cs)
   | isSpace c = lexer cs
   | isAlpha c = lexVar (c:cs)
   | isDigit c = lexNum (c:cs)
+  | otherwise = error $ "Unexpected character " ++ show c
 
 lexNum cs = TokenRatio (read $ num ++ " % 1") : lexer rest
   where (num, rest) = span isDigit cs

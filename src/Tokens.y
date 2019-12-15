@@ -9,7 +9,7 @@ import Complex
 %error { parseError }
 
 %token
-  'i'   { TokenI }
+  i     { TokenI }
   num   { TokenRatio $$ }
   var   { TokenVar $$ }
   '='   { TokenEq }
@@ -20,23 +20,20 @@ import Complex
   '('   { TokenOB }
   ')'   { TokenCB }
 
+%left '+' '-'
+%left '*' '/'
 %%
 
-Exp : var '=' Exp1           { Let $1 $3 }
-    | Exp1                   { Exp $1 }
-
-Exp1 : Exp1 '+' Term         { Plus $1 $3 }
-     | Exp1 '-' Term         { Minus $1 $3 }
-     | Term                  { Exp $1 }
-
-Term : Term '*' Factor       { Times $1 $3 }
-     | Term '/' Factor       { Div $1 $3 }
-     | Factor                { Exp $1 }
-
-Factor : 'i'                 { I }
-       | var                 { Var $1 }
-       | num                 { Number $1 }
-       | '(' Exp ')'         { Exp $2 }
+Exp : var '=' Exp       { Let $1 $3 }
+    | Exp '+' Exp       { Plus $1 $3 }
+    | Exp '-' Exp       { Minus $1 $3 }
+    | Exp '*' Exp       { Times $1 $3 }
+    | Exp '/' Exp       { Div $1 $3 }
+    | Exp               { Exp $1 }
+    | '(' Exp ')'       { Exp $2 }
+    | i                 { I }
+    | var               { Var $1 }
+    | num               { Number $1 }
 
 {
 parseError :: [Token] -> a
