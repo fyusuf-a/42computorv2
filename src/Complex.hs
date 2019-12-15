@@ -6,6 +6,7 @@ data Complex = Complex
                   { real :: Rational
                   , imaginary :: Rational
                   }
+             | Int Integer
 
 --instance Show Complex where
   --show (Complex x y) = sx ++ " + i" ++ (show y)
@@ -30,10 +31,19 @@ instance PrettyShow Complex where
   pretty (Complex 0 1) = "i"
   pretty (Complex 0 y) = pretty y ++ "i"
   pretty (Complex x y) = pretty x ++ " + " ++ pretty y ++ "i"
+  pretty (Int n) = pretty n
 
 instance Num Complex where
   (Complex x y) + (Complex x' y') = Complex (x + x') (y + y') 
+  (Int n) + (Complex x' y')       = Complex (n + x') y' 
+  (Complex x y) + (Int n)         = Complex (x + n) y 
+  (Int n) + (Int n')              = Int (n + n') 
+
   (Complex x y) - (Complex x' y') = Complex (x - x') (y - y') 
+  (Int n) - (Complex x' y')       = Complex (n - x') y' 
+  (Complex x y) - (Int n)         = Complex (x - n) y 
+  (Int n) - (Int n')              = Int (n - n') 
+
   (Complex x y) * (Complex x' y') = Complex (x * x' - y * y') (x * y' + x' * y) 
   negate (Complex x y) = Complex (-x) (-y)
   -- Modulus
