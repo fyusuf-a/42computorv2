@@ -1,16 +1,10 @@
 {
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
-
 module Tokens where
 
-import Complex
-import Control.Monad.State (MonadState, StateT, evalStateT, get, put, lift)
-import Control.Monad.IO.Class (MonadIO)
-import System.Console.Haskeline (InputT, runInputT, Settings, defaultSettings)
-import Data.Map (Map)
+import Complex (Complex(..), (^^^))
+import Control.Monad.State (get, put)
 import Useful ((#!), (#+))
+import App
 }
 
 %name calc
@@ -53,19 +47,6 @@ Exp :: { Complex }
 {
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
-
-type VarList = Map String Complex
-
-newtype Calculation a = Calculation {runCalc :: InputT (StateT VarList IO) a}
-  deriving (Functor, Applicative, Monad, MonadState VarList, MonadIO)
-
-instance (MonadState s m) => MonadState s (InputT m) where
-  put s = lift $ put s
-  get = lift get
-
-runCalculation :: Calculation a -> VarList -> Settings (StateT VarList IO) -> IO a
-runCalculation calc st settings = evalStateT st (runInputT settings calc')
-  where calc' = runCalc calc
 
 addToState :: String -> Complex -> Calculation Complex
 addToState var x = do
