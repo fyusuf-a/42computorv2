@@ -1,8 +1,8 @@
 {
 module Tokens where
 
-import Complex (Complex(..), (^^^))
-import Control.Monad.State (get, put)
+import Complex (Complex(..), (^^^), i)
+import Control.Monad.State.Strict (get, put, StateT)
 import Useful ((#!), (#+))
 import App
 }
@@ -32,29 +32,30 @@ import App
 %left '^'
 %%
 
-Exp :: { StateT VarList Complex }
-    | var '=' NumExp { Let $1 $3 }
-    | NumExp '=' '?' { NumExp $1 }
-    | var            { Var $1 }
+Exp :: { StateT VarList IO Complex }
+    : var '=' NumExp { do ; l <- get ; put $ l #+ ($1, $3) ; return $3 }
+    | NumExp         { return $1 }
+    | NumExp '=' '?' { return $1 }
+    | var            { do ; l <- get ; case $1 #! l of ; Nothing -> error $ "Could not find value " ++ $1 ++ " in memory." ; Just x -> return x }
 
 NumExp :: { Complex }
-       | NumExp '+' NumExp    { $1 $3 }
-       | NumExp '-' NumExp    { $1 $3 }
-       | NumExp '*' NumExp    { Times $1 $3 }
-       | NumExp '/' NumExp    { Div $1 $3 }
-       | NumExp '^' NumExp    { Power $1 $3 }
-       | '-' NumExp %prec NEG { Negate $2 }
+       : NumExp '+' NumExp    { $1 + $3 }
+       | NumExp '-' NumExp    { $1 - $3 }
+       | NumExp '*' NumExp    { $1 * $3 }
+       | NumExp '/' NumExp    { $1 / $3 }
+       | NumExp '^' NumExp    { $1 ^^^ $3 }
+       | '-' NumExp %prec NEG { -$2 }
        | '(' NumExp ')'       { $2 }
-       | i                    { I }
-       | num                  { Number $1 }
+       | i                    { i }
+       | num                  { fromRational $1 }
 
 {
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
 data Exp
-  = Let String NumExp
-  | Exp NumExp
+  = Let String Complex
+  | Exp Complex
   | Var String
   deriving Show
 

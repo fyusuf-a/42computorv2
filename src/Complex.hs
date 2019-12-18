@@ -2,11 +2,13 @@ module Complex where
 
 import Data.Ratio 
 import Data.Maybe (isJust, fromJust) 
+import Error
 
 data Complex = Complex
                   { real :: Rational
                   , imaginary :: Rational
                   }
+    deriving Show
 
 class PrettyShow a where
   pretty :: a -> String
@@ -42,6 +44,9 @@ instance Num Complex where
 
 conjugate :: Complex -> Complex
 conjugate (Complex x y) = Complex x (-y)
+
+i :: Complex
+i = Complex 0 1
 
 (^^^) :: Complex -> Complex -> Complex
 a ^^^ b
