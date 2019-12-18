@@ -1,7 +1,10 @@
 {
 module Tokens where
 
-import Complex
+import Complex (Complex, (^^^), i)
+import Control.Monad.State.Strict (get, put, StateT)
+import Useful ((#!), (#+))
+import App (VarList)
 }
 
 %name calc
@@ -9,7 +12,7 @@ import Complex
 %error { parseError }
 
 %token
-  'i'   { TokenI }
+  i     { TokenI }
   num   { TokenRatio $$ }
   var   { TokenVar $$ }
   '='   { TokenEq }
@@ -17,41 +20,45 @@ import Complex
   '-'   { TokenMinus }
   '*'   { TokenTimes }
   '/'   { TokenDiv }
+  '^'   { TokenPower }
   '('   { TokenOB }
   ')'   { TokenCB }
+  '?'   { TokenQuestionMark }
 
+%left '='
+%left '+' '-'
+%left '*' '/'
+%left NEG
+%left '^'
+%left TIMESI
 %%
 
-Exp : var '=' Exp1           { Let $1 $3 }
-    | Exp1                   { Exp $1 }
+Exp :: { StateT VarList IO Complex }
+    : var '=' NumExp { do ; l <- get ; put $ l #+ ($1, $3) ; return $3 }
+    | NumExp         { return $1 }
+    | NumExp '=' '?' { return $1 }
+    | var            { do ; l <- get ; case $1 #! l of ; Nothing -> error $ "Could not find value " ++ $1 ++ " in memory." ; Just x -> return x }
 
-Exp1 : Exp1 '+' Term         { Plus $1 $3 }
-     | Exp1 '-' Term         { Minus $1 $3 }
-     | Term                  { Exp $1 }
-
-Term : Term '*' Factor       { Times $1 $3 }
-     | Term '/' Factor       { Div $1 $3 }
-     | Factor                { Exp $1 }
-
-Factor : 'i'                 { I }
-       | var                 { Var $1 }
-       | num                 { Number $1 }
-       | '(' Exp ')'         { Exp $2 }
+NumExp :: { Complex }
+       : NumExp '+' NumExp     { $1 + $3 }
+       | NumExp '-' NumExp     { $1 - $3 }
+       | NumExp '*' NumExp     { $1 * $3 }
+       | NumExp '/' NumExp     { $1 / $3 }
+       | NumExp '^' NumExp     { $1 ^^^ $3 }
+       | '-' NumExp %prec NEG  { -$2 }
+       | '(' NumExp ')'        { $2 }
+       | NumExp i %prec TIMESI { $1 * i }
+       | i                     { i }
+       | num                   { fromRational $1 }
 
 {
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
 data Exp
-  = Let String Exp
-  | Plus Exp Exp
-  | Minus Exp Exp
-  | Times Exp Exp
-  | Div Exp Exp
-  | Number Rational
-  | Exp Exp
+  = Let String Complex
+  | Exp Complex
   | Var String
-  | I
   deriving Show
 
 data Token
@@ -63,7 +70,9 @@ data Token
   | TokenMinus
   | TokenTimes
   | TokenDiv
+  | TokenPower
   | TokenOB
   | TokenCB
+  | TokenQuestionMark
   deriving Show
 }

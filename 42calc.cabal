@@ -55,8 +55,8 @@ library
   -- Modules exported by the library.
   exposed-modules:     Lexer
                      , Tokens
-                     , Eval
                      , Complex
+                     , App
 
   -- Modules included in this library but not exported.
   -- other-modules:
@@ -69,14 +69,15 @@ library
                      , array
                      , Useful
                      , containers
-                     , ncurses
+                     , mtl
+                     , haskeline
+                     , transformers
 
   -- Directories containing source files.
   hs-source-dirs:      src
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
-
 
 executable 42calc
   -- .hs or .lhs file containing the Main module.
@@ -93,7 +94,8 @@ executable 42calc
                      , Cabal
                      , containers
                      , Useful
-                     , ncurses
+                     , haskeline
+                     , mtl
 
   build-tool-depends:  happy:happy
 
