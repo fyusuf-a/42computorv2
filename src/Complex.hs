@@ -2,7 +2,7 @@ module Complex where
 
 import Data.Ratio 
 import Data.Maybe (isJust, fromJust) 
-import Error
+import Control.Exception (ArithException(..), NoMethodError(..), throw)
 
 data Complex = Complex
                   { real :: Rational
@@ -37,9 +37,9 @@ instance Num Complex where
   negate (Complex x y) = Complex (-x) (-y)
   -- Modulus
   abs (Complex x 0) = Complex (abs x) 0
-  abs _ = error "Cannot compute absolute value if complex is not a real"
+  abs _ = throw $ NoMethodError "cannot compute absolute value if complex is not a real"
   signum (Complex x 0) = Complex (signum x) 0
-  signum _ = error "Cannot compute signum if complex is not a real"
+  signum _ = throw $ NoMethodError "cannot compute signum if complex is not a real"
   fromInteger x = Complex (fromInteger x) 0
 
 conjugate :: Complex -> Complex
@@ -51,14 +51,14 @@ i = Complex 0 1
 (^^^) :: Complex -> Complex -> Complex
 a ^^^ b
   | isJust maybeN =  a ^^ (fromJust maybeN)
-  | otherwise = error $ "Power " ++ pretty b ++ " is not a natural"
+  | otherwise = throw $ NoMethodError $ "power " ++ pretty b ++ " is not a natural"
   where toNatural (Complex x y)
           | denominator x == 1 && y == 0 = Just $ numerator x
           | otherwise = Nothing
         maybeN = toNatural b
 
 instance Fractional Complex where
-  (Complex _ _) / (Complex 0 0) = error "Division by zero is impossible"
+  (Complex _ _) / (Complex 0 0) = throw DivideByZero
   (Complex x y) / (Complex x' y') = Complex ((x * x' + y * y')/mod) ((-x * y' + y * x')/mod)
     where mod = x'^2 + y'^2
   fromRational r = Complex (fromRational r) 0

@@ -1,10 +1,10 @@
 {
 module Tokens where
 
-import Complex (Complex(..), (^^^), i)
+import Complex (Complex, (^^^), i)
 import Control.Monad.State.Strict (get, put, StateT)
 import Useful ((#!), (#+))
-import App
+import App (VarList)
 }
 
 %name calc
@@ -30,6 +30,7 @@ import App
 %left '*' '/'
 %left NEG
 %left '^'
+%left TIMESI
 %%
 
 Exp :: { StateT VarList IO Complex }
@@ -39,15 +40,16 @@ Exp :: { StateT VarList IO Complex }
     | var            { do ; l <- get ; case $1 #! l of ; Nothing -> error $ "Could not find value " ++ $1 ++ " in memory." ; Just x -> return x }
 
 NumExp :: { Complex }
-       : NumExp '+' NumExp    { $1 + $3 }
-       | NumExp '-' NumExp    { $1 - $3 }
-       | NumExp '*' NumExp    { $1 * $3 }
-       | NumExp '/' NumExp    { $1 / $3 }
-       | NumExp '^' NumExp    { $1 ^^^ $3 }
-       | '-' NumExp %prec NEG { -$2 }
-       | '(' NumExp ')'       { $2 }
-       | i                    { i }
-       | num                  { fromRational $1 }
+       : NumExp '+' NumExp     { $1 + $3 }
+       | NumExp '-' NumExp     { $1 - $3 }
+       | NumExp '*' NumExp     { $1 * $3 }
+       | NumExp '/' NumExp     { $1 / $3 }
+       | NumExp '^' NumExp     { $1 ^^^ $3 }
+       | '-' NumExp %prec NEG  { -$2 }
+       | '(' NumExp ')'        { $2 }
+       | NumExp i %prec TIMESI { $1 * i }
+       | i                     { i }
+       | num                   { fromRational $1 }
 
 {
 parseError :: [Token] -> a

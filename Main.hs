@@ -8,8 +8,8 @@ import Data.Map (empty)
 import Lexer (lexer)
 import Complex (pretty)
 import System.Console.Haskeline (getInputLine, defaultSettings)
+import System.Console.Haskeline.MonadException (SomeException, catch)
 import Control.Monad.State.Strict (liftIO, lift)
-import Control.Exception (catch)
 
 calculation :: Calculation ()
 calculation = do
@@ -17,10 +17,12 @@ calculation = do
   case interaction of
     Nothing -> return ()
     Just line -> do
-      x <- lift $ calc . lexer $ line
+      x <- lift . calc . lexer $ line
       liftIO . putStrLn . pretty $ x
 
 main :: IO ()
 main = runCalculation calculations empty defaultSettings
-  where calculations = sequence_ . repeat $
-              catch calculation $ \(e::IOError) -> putStrLn "yo"
+  where calculations :: Calculation ()
+        calculations = sequence_ . repeat $
+              catch calculation $ \(e::SomeException) -> do
+                  liftIO . putStrLn $ "error: " ++ show e
