@@ -11,9 +11,10 @@ lexer ('+':cs) = TokenPlus : lexer cs
 lexer ('-':cs) = TokenMinus : lexer cs
 lexer ('*':cs) = TokenTimes : lexer cs
 lexer ('/':cs) = TokenDiv : lexer cs
+lexer ('^':cs) = TokenPower : lexer cs
 lexer ('(':cs) = TokenOB : lexer cs
 lexer (')':cs) = TokenCB : lexer cs
-lexer ('^':cs) = TokenPower : lexer cs
+lexer ('?':cs) = TokenQuestionMark : lexer cs
 lexer (c:cs)
   | isSpace c = lexer cs
   | isAlpha c = lexVar (c:cs)

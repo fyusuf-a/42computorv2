@@ -17,15 +17,16 @@ type VarList = Map String Complex
 
 --newtype Calculation a = Calculation {runCalc :: InputT (StateT VarList IO) a}
   --deriving (Functor, Applicative, Monad, MonadState VarList, MonadIO)
-type Calculation a = StateT VarList (InputT IO) a
+type Calculation a = InputT _ (StateT VarList) a
 
 --instance (MonadState s m) => MonadState s (InputT m) where
-  --put s = lift $ put s
+  --p
+  --t s = lift $ put s
   --get = lift get
 
 --instance InputT Calculation where
 
 
 runCalculation :: Calculation a -> VarList -> Settings IO -> IO a
-runCalculation calc st settings = runInputT settings (evalStateT calc st)
+runCalculation calc st settings = evalStateT (runInputT settings calc) st
   --where calc' = runCalc calc

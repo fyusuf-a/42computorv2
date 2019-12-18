@@ -10,7 +10,6 @@ import App
 %name calc
 %tokentype { Token }
 %error { parseError }
-%monad { Calculation }
 
 %token
   i     { TokenI }
@@ -24,6 +23,7 @@ import App
   '^'   { TokenPower }
   '('   { TokenOB }
   ')'   { TokenCB }
+  '?'   { TokenQuestionMark }
 
 %left '='
 %left '+' '-'
@@ -32,34 +32,31 @@ import App
 %left '^'
 %%
 
-Exp :: { Complex }
-    : var '=' Exp       {% addToState $1 $3 }
-    | Exp '+' Exp       { $1 + $3 }
-    | Exp '-' Exp       { $1 - $3 }
-    | Exp '*' Exp       { $1 * $3 }
-    | Exp '/' Exp       { $1 / $3 }
-    | Exp '^' Exp       { $1 ^^^ $3 }
-    | '-' Exp %prec NEG { - $2 }
-    | '(' Exp ')'       { $2 }
-    | i                 { Complex 0 1 }
-    | var               {% findVar $1 }
-    | num               { Complex $1 0 }
+Exp :: { StateT VarList Complex }
+    | var '=' NumExp { Let $1 $3 }
+    | NumExp '=' '?' { NumExp $1 }
+    | var            { Var $1 }
+
+NumExp :: { Complex }
+       | NumExp '+' NumExp    { $1 $3 }
+       | NumExp '-' NumExp    { $1 $3 }
+       | NumExp '*' NumExp    { Times $1 $3 }
+       | NumExp '/' NumExp    { Div $1 $3 }
+       | NumExp '^' NumExp    { Power $1 $3 }
+       | '-' NumExp %prec NEG { Negate $2 }
+       | '(' NumExp ')'       { $2 }
+       | i                    { I }
+       | num                  { Number $1 }
+
 {
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
-addToState :: String -> Complex -> Calculation Complex
-addToState var x = do
-  l <- get
-  put (l #+ (var, x))
-  return x
-
-findVar :: String -> Calculation Complex
-findVar var = do
-  l <- get
-  case var #! l of
-    Nothing -> error $ "Could not find value " ++ var ++ " in memory."
-    Just x -> return x
+data Exp
+  = Let String NumExp
+  | Exp NumExp
+  | Var String
+  deriving Show
 
 data Token
   = TokenVar String
@@ -73,5 +70,6 @@ data Token
   | TokenPower
   | TokenOB
   | TokenCB
+  | TokenQuestionMark
   deriving Show
 }
