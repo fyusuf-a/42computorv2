@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 import Tokens (calc)
 import App (Calculation, runCalculation)
 import Data.Map (empty)

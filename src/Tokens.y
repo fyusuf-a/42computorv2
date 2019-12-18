@@ -5,6 +5,7 @@ import Complex (Complex, (^^^), i)
 import Control.Monad.State.Strict (get, put, StateT)
 import Useful ((#!), (#+))
 import App (VarList)
+import Control.Exception (throw, Exception)
 }
 
 %name calc
@@ -37,7 +38,7 @@ Exp :: { StateT VarList IO Complex }
     : var '=' NumExp { do ; l <- get ; put $ l #+ ($1, $3) ; return $3 }
     | NumExp         { return $1 }
     | NumExp '=' '?' { return $1 }
-    | var            { do ; l <- get ; case $1 #! l of ; Nothing -> error $ "Could not find value " ++ $1 ++ " in memory." ; Just x -> return x }
+    | var            { do ; l <- get ; case $1 #! l of ; Nothing -> throw NotInMemory ; Just x -> return x }
 
 NumExp :: { Complex }
        : NumExp '+' NumExp     { $1 + $3 }
@@ -52,8 +53,20 @@ NumExp :: { Complex }
        | num                   { fromRational $1 }
 
 {
+
+data CustomException
+  = NoParse String
+  | NotInMemory
+
+instance Show CustomException where
+  show (NoParse "") = "no parse"
+  show (NoParse str) = str
+  show (NotInMemory) = "variable not in memory"
+
+instance Exception CustomException
+
 parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError _ = throw $ NoParse ""
 
 data Exp
   = Let String Complex

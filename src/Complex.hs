@@ -27,8 +27,13 @@ instance PrettyShow Complex where
   pretty (Complex 0 0) = "0"
   pretty (Complex x 0) = pretty x
   pretty (Complex 0 1) = "i"
+  pretty (Complex 0 (-1)) = "-i"
   pretty (Complex 0 y) = pretty y ++ "i"
-  pretty (Complex x y) = pretty x ++ " + " ++ pretty y ++ "i"
+  pretty (Complex x y)
+    | y == 1 = pretty x ++ " + i"
+    | y == -1 = pretty x ++ " - i"
+    | y > 0 = pretty x ++ " + " ++ pretty y ++ "i"
+    | otherwise = pretty x ++ " - " ++ pretty (-y) ++ "i"
 
 instance Num Complex where
   (Complex x y) + (Complex x' y') = Complex (x + x') (y + y') 

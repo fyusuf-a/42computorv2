@@ -1,7 +1,8 @@
 module Lexer where
 
 import Tokens
-import Data.Char
+import Data.Char (isDigit, isSpace, isAlpha)
+import Control.Exception (throw)
 
 lexer :: String -> [Token]
 lexer [] = []
@@ -19,7 +20,7 @@ lexer (c:cs)
   | isSpace c = lexer cs
   | isAlpha c = lexVar (c:cs)
   | isDigit c = lexNum (c:cs)
-  | otherwise = error $ "Unexpected character " ++ show c
+  | otherwise = throw $ NoParse "unexpected character"
 
 lexNum cs = TokenRatio (read $ num ++ " % 1") : lexer rest
   where (num, rest) = span isDigit cs
