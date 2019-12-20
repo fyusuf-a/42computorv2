@@ -11,6 +11,7 @@ import Control.Exception (throw, Exception)
 %name calc
 %tokentype { Token }
 %error { parseError }
+%monad { StateT VarList IO }
 
 %token
   i     { TokenI }
@@ -34,23 +35,20 @@ import Control.Exception (throw, Exception)
 %left TIMESI
 %%
 
-Exp :: { StateT VarList IO Complex }
-    : var '=' NumExp { do ; l <- get ; put $ l #+ ($1, $3) ; return $3 }
-    | NumExp         { return $1 }
-    | NumExp '=' '?' { return $1 }
-    | var            { do ; l <- get ; case $1 #! l of ; Nothing -> throw NotInMemory ; Just x -> return x }
-
-NumExp :: { Complex }
-       : NumExp '+' NumExp     { $1 + $3 }
-       | NumExp '-' NumExp     { $1 - $3 }
-       | NumExp '*' NumExp     { $1 * $3 }
-       | NumExp '/' NumExp     { $1 / $3 }
-       | NumExp '^' NumExp     { $1 ^^^ $3 }
-       | '-' NumExp %prec NEG  { -$2 }
-       | '(' NumExp ')'        { $2 }
-       | NumExp i %prec TIMESI { $1 * i }
-       | i                     { i }
-       | num                   { fromRational $1 }
+Exp :: { Complex }
+       : var '=' Exp        {% do ; l <- get ; put $ l #+ ($1, $3) ; return $3 }
+       | Exp '+' Exp        { $1 + $3 }
+       | Exp '=' '?'        { $1 }
+       | Exp '-' Exp        { $1 - $3 }
+       | Exp '*' Exp        { $1 * $3 }
+       | Exp '/' Exp        { $1 / $3 }
+       | Exp '^' Exp        { $1 ^^^ $3 }
+       | '-' Exp %prec NEG  { -$2 }
+       | '(' Exp ')'        { $2 }
+       | Exp i %prec TIMESI { $1 * i }
+       | i                  { i }
+       | num                { fromRational $1 }
+       | var                {% do ; l <- get ; case $1 #! l of ; Nothing -> throw NotInMemory ; Just x -> return x }
 
 {
 
@@ -67,12 +65,6 @@ instance Exception CustomException
 
 parseError :: [Token] -> a
 parseError _ = throw $ NoParse ""
-
-data Exp
-  = Let String Complex
-  | Exp Complex
-  | Var String
-  deriving Show
 
 data Token
   = TokenVar String
